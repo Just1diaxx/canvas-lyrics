@@ -1,9 +1,7 @@
 import React from "react";
 import { getLyrics } from "./lyrics";
-import type { LyricsData } from "./lyrics";
 import { LyricOverlay } from "./LyricOverlay";
-
-type DisplayMode = "canvas" | "cover";
+import type { LyricsData, DisplayMode } from "./utils/types";
 
 async function main() {
   while (!Spicetify?.Player || !Spicetify?.Platform || !Spicetify?.ReactDOM) {
@@ -59,7 +57,7 @@ async function main() {
 
     for (const sel of titleSelectors) {
       const el = panel.querySelector(sel);
-      if (el && el instanceof HTMLElement) {
+      if (el && el instanceof HTMLElement && findTitleElement(el)) {
         return el;
       }
     }
@@ -80,12 +78,12 @@ async function main() {
     if (videoRect.height === 0) return 90;
 
     let anchor: HTMLElement | null = null;
-    const buttons = panel.querySelectorAll("button");
-    for (const btn of buttons) {
-      const txt = (btn.textContent || "").toLowerCase();
-      if (txt.includes("video") || txt.includes("passa") || txt.includes("switch") || txt.includes("view")) {
-        anchor = btn;
-        break;
+    const button = panel.querySelector(".main-nowPlayingView-actionButton.main-nowPlayingView-actionButtonShow");
+
+    if (button && button instanceof HTMLElement) {
+      const txt = (button.textContent || "").toLowerCase();
+      if (txt.includes("video") || txt.includes("switch") || txt.includes("view")) {
+        anchor = button;
       }
     }
 

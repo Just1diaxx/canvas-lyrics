@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react";
-import type { LyricsData } from "./lyrics";
-
-interface LyricOverlayProps {
-  lyricsData: LyricsData | null;
-  progress: number;
-  mode?: "canvas" | "cover";
-  bottomOffset?: number;
-}
+import type { LyricOverlayProps } from "./utils/types";
 
 const waiting = "__waiting__";
 
@@ -188,7 +181,6 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
               fontSize: mode === "canvas" ? "18px" : "16px",
               fontWeight: "700",
               lineHeight: "1.3",
-              textShadow: mode === "canvas" ? "0 2px 8px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 0, 0, 0.8)" : "none",
               wordWrap: "break-word",
               letterSpacing: "-0.01em",
               animation: "carouselExit 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards",
@@ -205,7 +197,6 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
             fontSize: mode === "canvas" ? "18px" : "16px",
             fontWeight: "700",
             lineHeight: "1.3",
-            textShadow: mode === "canvas" ? "0 2px 8px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 0, 0, 0.8)" : "none",
             wordWrap: "break-word",
             letterSpacing: "-0.01em",
             animation: isTransitioning
