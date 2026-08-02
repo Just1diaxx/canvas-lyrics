@@ -8,6 +8,8 @@ interface LyricOverlayProps {
   bottomOffset?: number;
 }
 
+const waiting = "__waiting__";
+
 const carouselKeyframes = `
   @keyframes carouselEnter {
     0% {
@@ -57,7 +59,7 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
 
     if (activeIndex !== -1) {
       const text = lyricsData.lines[activeIndex].text;
-      if (text !== activeText) {
+      if (activeIndex !== lineKey) {
         setPrevText(activeText);
         setActiveText(text);
         setLineKey(activeIndex);
@@ -70,11 +72,87 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
         return () => clearTimeout(timer);
       }
     } else {
-      setActiveText("");
-      setPrevText("");
-      setLineKey(-1);
+      const nextIdx = lyricsData.lines.findIndex((l) => l.startTimeMs > progress);
+      let showIndicator = false;
+      if (nextIdx !== -1) {
+        const startOfGap = nextIdx === 0 ? 0 : lyricsData.lines[nextIdx - 1].endTimeMs;
+        const endOfGap = lyricsData.lines[nextIdx].startTimeMs;
+        const gapDuration = endOfGap - startOfGap;
+        if (gapDuration > 3000 && progress >= startOfGap) {
+          showIndicator = true;
+        }
+      }
+
+      if (showIndicator) {
+        if (lineKey !== -2) {
+          setPrevText(activeText);
+          setActiveText(waiting);
+          setLineKey(-2);
+          setIsTransitioning(true);
+
+          const timer = setTimeout(() => {
+            setIsTransitioning(false);
+            setPrevText("");
+          }, 350);
+          return () => clearTimeout(timer);
+        }
+      } else {
+        if (lineKey !== -1) {
+          setActiveText("");
+          setPrevText("");
+          setLineKey(-1);
+        }
+      }
     }
-  }, [lyricsData, progress, activeText]);
+  }, [lyricsData, progress, activeText, lineKey]);
+
+  let gapProgress = 0;
+  if (activeText === waiting && lyricsData) {
+    const nextIdx = lyricsData.lines.findIndex((l) => l.startTimeMs > progress);
+    if (nextIdx !== -1) {
+      const startOfGap = nextIdx === 0 ? 0 : lyricsData.lines[nextIdx - 1].endTimeMs;
+      const endOfGap = lyricsData.lines[nextIdx].startTimeMs;
+      const gapDuration = endOfGap - startOfGap;
+      gapProgress = Math.min(1, Math.max(0, (progress - startOfGap) / gapDuration));
+    }
+  }
+
+  const renderContent = (text: string, isPrev: boolean) => {
+    if (text === waiting) {
+      return (
+        <div style={{
+          display: 'flex',
+          gap: '6px',
+          alignItems: 'center',
+          height: mode === "canvas" ? "24px" : "21px",
+          marginTop: "4px"
+        }}>
+          {[0, 1, 2].map(i => {
+            const start = i * 0.333;
+            const end = (i + 1) * 0.333;
+            let opacity = 1;
+            if (!isPrev) {
+              if (gapProgress >= end) opacity = 1;
+              else if (gapProgress <= start) opacity = 0.3;
+              else opacity = 0.3 + 0.7 * ((gapProgress - start) / (end - start));
+            }
+
+            return (
+              <div key={i} style={{
+                width: mode === "canvas" ? '8px' : '6px',
+                height: mode === "canvas" ? '8px' : '6px',
+                borderRadius: '50%',
+                backgroundColor: mode === "canvas" ? '#ffffff' : 'var(--text-base, #ffffff)',
+                opacity,
+                boxShadow: mode === "canvas" ? "0 2px 4px rgba(0,0,0,0.5)" : "none",
+              }} />
+            );
+          })}
+        </div>
+      );
+    }
+    return text;
+  };
 
   if (!activeText && !prevText) return null;
 
@@ -116,7 +194,7 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
               animation: "carouselExit 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards",
             }}
           >
-            {prevText}
+            {renderContent(prevText, true)}
           </div>
         )}
 
@@ -135,7 +213,7 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
               : "none",
           }}
         >
-          {activeText}
+          {renderContent(activeText, false)}
         </div>
       </div>
     </div>
