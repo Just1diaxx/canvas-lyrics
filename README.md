@@ -7,10 +7,10 @@ From the same creators of [nontitled](https://github.com/nontitled/spicetify-ext
 
 # How to install Canvas lyrics
 
-> ## 1. Using the Spicetify Marketplace (recommended)
-> 1. Search `Canvas lyrics` under the "Extensions" tab
-> 2. Click the Install button on the Canvas lyrics extension
-> 3. All done!
+## 1. Using the Spicetify Marketplace (recommended)
+1. Search `Canvas lyrics` under the "Extensions" tab
+2. Click the Install button on the Canvas lyrics extension
+3. All done!
 
 ## 2. Externally (not recommended)
 1. Make sure you have [Spicetify](https://spicetify.app) installed
