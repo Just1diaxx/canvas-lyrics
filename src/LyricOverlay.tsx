@@ -167,7 +167,7 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
         padding: "0 4px",
         pointerEvents: "none",
         textAlign: "left",
-        width: "100%",
+        width: mode === "canvas" ? "calc(100% - 40px)" : "100%",
         boxSizing: "border-box",
         zIndex: 9999,
         transition: "bottom 0.15s ease-out",
