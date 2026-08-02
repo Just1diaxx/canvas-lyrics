@@ -1,0 +1,19 @@
+{
+  "name": "canvas-lyrics",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "sc": "spicetify-creator",
+    "dev": "spicetify-creator dev",
+    "build": "spicetify-creator build",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@spicemod/creator": "^0.0.35"
+  }
+}

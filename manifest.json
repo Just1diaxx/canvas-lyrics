@@ -1,0 +1,29 @@
+[
+    {
+        "name": "Canvas Lyrics",
+        "description": "Brings the canvas lyrics feature from the mobile app to the desktop app",
+        "preview": "./previews/marketplace.webp",
+        "main": "./dist/canvas-lyrics.js",
+        "readme": "README.md",
+        "branch": "main",
+        "authors": [
+            {
+                "name": "justty3p",
+                "url": "https://github.com/Just1diaxx"
+            }
+        ],
+        "tags": [
+            "lyrics",
+            "spicetify",
+            "smooth",
+            "beautiful",
+            "animated",
+            "background",
+            "backgrounds",
+            "dynamic",
+            "pretty",
+            "canvas-lyrics",
+            "canvas"
+        ]
+    }
+]
