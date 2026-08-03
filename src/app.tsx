@@ -12,6 +12,7 @@ async function main() {
 
   let currentLyricsData: LyricsData | null = null;
   let currentProgress = 0;
+  let lyricsFetchInProgress = false;
 
   let activeRoot: any = null;
   let activeContainer: HTMLElement | null = null;
@@ -196,10 +197,15 @@ async function main() {
 
   const fetchCurrentLyrics = async () => {
     const track = Spicetify.Player.data.item;
-    if (track) {
+    if (!track || lyricsFetchInProgress) return;
+
+    lyricsFetchInProgress = true;
+    try {
       currentLyricsData = await getLyrics(track);
-      renderOverlays();
+    } finally {
+      lyricsFetchInProgress = false;
     }
+    renderOverlays();
   };
 
   Spicetify.Player.addEventListener("songchange", () => {
@@ -212,10 +218,16 @@ async function main() {
 
   Spicetify.Player.addEventListener("onprogress", (e: any) => {
     currentProgress = e.data;
+    if (!currentLyricsData) {
+      fetchCurrentLyrics();
+    }
     renderOverlays();
   });
 
   setInterval(() => {
+    if (!currentLyricsData) {
+      fetchCurrentLyrics();
+    }
     renderOverlays();
   }, 1000);
 

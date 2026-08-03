@@ -131,6 +131,10 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
     }
   }
 
+  const maxLyricLines = 3;
+  const lyricLineHeight = "1.3";
+  const lyricBlockHeight = `calc(${lyricLineHeight}em * ${maxLyricLines})`;
+
   const renderContent = (text: string, isPrev: boolean) => {
     if (text === waiting) {
       return (
@@ -201,9 +205,12 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
               color: mode === "canvas" ? "#ffffff" : "var(--text-base, #ffffff)",
               fontSize: mode === "canvas" ? "18px" : "16px",
               fontWeight: "700",
-              lineHeight: "1.3",
+              lineHeight: lyricLineHeight,
+              minHeight: lyricBlockHeight,
+              maxHeight: lyricBlockHeight,
               wordWrap: "break-word",
               letterSpacing: "-0.01em",
+              overflow: "hidden",
               animation: "carouselExit 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards",
             }}
           >
@@ -217,9 +224,12 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
             color: mode === "canvas" ? "#ffffff" : "var(--text-base, #ffffff)",
             fontSize: mode === "canvas" ? "18px" : "16px",
             fontWeight: "700",
-            lineHeight: "1.3",
+            lineHeight: lyricLineHeight,
+            minHeight: lyricBlockHeight,
+            maxHeight: lyricBlockHeight,
             wordWrap: "break-word",
             letterSpacing: "-0.01em",
+            overflow: "hidden",
             animation: isTransitioning
               ? "carouselEnter 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards"
               : "none",
