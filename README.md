@@ -2,10 +2,8 @@
 Brings the canvas lyrics feature from the mobile app to the desktop app! (works also with cover-only songs).
 
 Supports Spotify's internal API, nontitled.eu and LRCLIB.
-
 The order is: nontitled.eu, SIAPI (spotify) as first fallback and LRCLIB as last fallback.
-
-From the same creators of [nontitled](https://github.com/nontitled/spicetify-extension).
+> From the same creators of [nontitled](https://github.com/nontitled/spicetify-extension).
 
 # How to install Canvas lyrics
 
