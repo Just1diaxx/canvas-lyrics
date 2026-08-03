@@ -3,7 +3,7 @@ import { parseLRC } from "../utils/parseLRC";
 
 let lrclibRetryAfter = 0;
 
-async function fetchLRCLibLyrics(trackName: string, artistName: string, albumName: string, durationMs: number): Promise<LyricsData | null> {
+async function fetchLRCLibLyrics(trackName: string, artistName: string, durationMs: number): Promise<LyricsData | null> {
     const now = Date.now();
     if (now < lrclibRetryAfter) {
         return null;
@@ -13,7 +13,6 @@ async function fetchLRCLibLyrics(trackName: string, artistName: string, albumNam
         const query = new URLSearchParams({
             track_name: trackName,
             artist_name: artistName,
-            album_name: albumName,
             duration: (durationMs / 1000).toString()
         });
 

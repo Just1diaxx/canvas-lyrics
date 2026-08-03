@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { getActiveLyricIndex } from "./utils/getActiveLyricIndex";
 import type { LyricOverlayProps } from "./utils/types";
 
 const waiting = "__waiting__";
@@ -46,9 +47,7 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
       return;
     }
 
-    const activeIndex = lyricsData.lines.findIndex(
-      (line) => progress >= line.startTimeMs && progress < line.endTimeMs
-    );
+    const activeIndex = getActiveLyricIndex(lyricsData.lines, progress);
 
     if (activeIndex !== -1) {
       const text = lyricsData.lines[activeIndex].text;
@@ -67,12 +66,21 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
     } else {
       const nextIdx = lyricsData.lines.findIndex((l) => l.startTimeMs > progress);
       let showIndicator = false;
+      let shortPauseText = "";
+      let shortPauseLineKey = -1;
+
       if (nextIdx !== -1) {
         const startOfGap = nextIdx === 0 ? 0 : lyricsData.lines[nextIdx - 1].endTimeMs;
         const endOfGap = lyricsData.lines[nextIdx].startTimeMs;
         const gapDuration = endOfGap - startOfGap;
-        if (gapDuration > 3000 && progress >= startOfGap) {
-          showIndicator = true;
+
+        if (progress >= startOfGap) {
+          if (gapDuration > 3000) {
+            showIndicator = true;
+          } else if (nextIdx > 0) {
+            shortPauseText = lyricsData.lines[nextIdx - 1].text;
+            shortPauseLineKey = nextIdx - 1;
+          }
         }
       }
 
@@ -81,6 +89,19 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
           setPrevText(activeText);
           setActiveText(waiting);
           setLineKey(-2);
+          setIsTransitioning(true);
+
+          const timer = setTimeout(() => {
+            setIsTransitioning(false);
+            setPrevText("");
+          }, 350);
+          return () => clearTimeout(timer);
+        }
+      } else if (shortPauseText) {
+        if (activeText !== shortPauseText || lineKey !== shortPauseLineKey) {
+          setPrevText(activeText);
+          setActiveText(shortPauseText);
+          setLineKey(shortPauseLineKey);
           setIsTransitioning(true);
 
           const timer = setTimeout(() => {

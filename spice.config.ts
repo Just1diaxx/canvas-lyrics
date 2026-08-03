@@ -2,7 +2,7 @@ import { defineConfig } from "@spicemod/creator";
 
 export default defineConfig({
     name: "canvas-lyrics",
-    version: "1.2.0",
+    version: "1.3.0",
     linter: "oxlint",
     template: "extension",
     packageManager: "bun",

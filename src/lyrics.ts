@@ -1,5 +1,6 @@
 import { fetchNativeLyrics } from "./sources/spotifyapi";
 import { fetchLRCLibLyrics } from "./sources/lrclib";
+import { fetchNontitledLyrics } from "./sources/nontitled";
 import type { LyricsData } from "./utils/types";
 
 export async function getLyrics(track: Spicetify.PlayerTrack): Promise<LyricsData | null> {
@@ -9,7 +10,14 @@ export async function getLyrics(track: Spicetify.PlayerTrack): Promise<LyricsDat
 
   const trackId = track.uri.split(":").pop();
 
+
   if (trackId) {
+    const nontitledLyrics = await fetchNontitledLyrics(trackId);
+    if (nontitledLyrics) {
+      return nontitledLyrics;
+    }
+
+
     const nativeLyrics = await fetchNativeLyrics(trackId);
     if (nativeLyrics) {
       return nativeLyrics;
@@ -17,15 +25,14 @@ export async function getLyrics(track: Spicetify.PlayerTrack): Promise<LyricsDat
   }
 
   const meta = track.metadata;
-  if (meta && meta.title && meta.artist_name && meta.album_title && meta.duration) {
-    const fallbackLyrics = await fetchLRCLibLyrics(
+  if (meta && meta.title && meta.artist_name && meta.duration) {
+    const lrclibLyrics = await fetchLRCLibLyrics(
       meta.title,
       meta.artist_name,
-      meta.album_title,
       Number(meta.duration)
     );
-    if (fallbackLyrics) {
-      return fallbackLyrics;
+    if (lrclibLyrics) {
+      return lrclibLyrics;
     }
   }
 
