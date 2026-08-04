@@ -12,10 +12,10 @@ export async function getLyrics(track: Spicetify.PlayerTrack): Promise<LyricsDat
 
 
   if (trackId) {
-    const nontitledLyrics = await fetchNontitledLyrics(trackId);
-    if (nontitledLyrics) {
-      return nontitledLyrics;
-    }
+    // const nontitledLyrics = await fetchNontitledLyrics(trackId);
+    // if (nontitledLyrics) {
+    //   return nontitledLyrics;
+    // }
 
 
     const nativeLyrics = await fetchNativeLyrics(trackId);
