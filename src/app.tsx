@@ -48,17 +48,16 @@ async function main() {
   };
 
   const findTitleElement = (panel: HTMLElement): HTMLElement | null => {
-    const titleSelectors = [
-      "[data-testid='now-playing-widget']",
+    const specificSelectors = [
       "[data-testid='context-item-info']",
       ".main-nowPlayingView-contextItemInfo",
       ".main-trackInfo-container",
       "[data-testid='track-info']",
     ];
 
-    for (const sel of titleSelectors) {
+    for (const sel of specificSelectors) {
       const el = panel.querySelector(sel);
-      if (el && el instanceof HTMLElement && findTitleElement(el)) {
+      if (el && el instanceof HTMLElement) {
         return el;
       }
     }
@@ -69,38 +68,66 @@ async function main() {
       if (container && container instanceof HTMLElement && container !== panel) {
         return container;
       }
+      return link instanceof HTMLElement ? link : null;
     }
 
     return null;
   };
 
   const getCanvasBottomOffset = (panel: HTMLElement, video: HTMLElement): number => {
-    const videoRect = video.getBoundingClientRect();
-    if (videoRect.height === 0) return 90;
+    const container = video.parentElement || video;
+    const containerRect = container.getBoundingClientRect();
+    if (containerRect.height === 0) return 24;
 
     let anchor: HTMLElement | null = null;
     const button = panel.querySelector(".main-nowPlayingView-actionButton.main-nowPlayingView-actionButtonShow");
 
     if (button && button instanceof HTMLElement) {
-      const txt = (button.textContent || "").toLowerCase();
-      if (txt.includes("video") || txt.includes("switch") || txt.includes("view")) {
-        anchor = button;
+      const buttonRect = button.getBoundingClientRect();
+      if (
+        buttonRect.top >= containerRect.top + containerRect.height * 0.3 &&
+        buttonRect.top <= containerRect.bottom + 50
+      ) {
+        const txt = (button.textContent || "").toLowerCase();
+        if (txt.includes("video") || txt.includes("switch") || txt.includes("view") || txt.includes("passa")) {
+          anchor = button;
+        }
       }
     }
 
-    if (!anchor) {
-      anchor = findTitleElement(panel);
+    const titleEl = findTitleElement(panel);
+    let anchorTop = containerRect.bottom;
+    let hasAnchor = false;
+
+    if (titleEl) {
+      const titleRect = titleEl.getBoundingClientRect();
+      if (titleRect.top > containerRect.top + 30) {
+        anchorTop = titleRect.top;
+        hasAnchor = true;
+      }
     }
 
     if (anchor) {
-      const anchorRect = anchor.getBoundingClientRect();
-      const offset = Math.round(videoRect.bottom - anchorRect.top + 8);
-      if (offset > 10 && offset < videoRect.height) {
+      const buttonRect = anchor.getBoundingClientRect();
+      if (hasAnchor) {
+        anchorTop = Math.min(anchorTop, buttonRect.top);
+      } else {
+        anchorTop = buttonRect.top;
+        hasAnchor = true;
+      }
+    }
+
+    if (hasAnchor) {
+      const offset = Math.round(containerRect.bottom - anchorTop + 14);
+      if (offset < 24) {
+        return 24;
+      }
+      if (offset < containerRect.height - 40) {
         return offset;
       }
     }
 
-    return 90;
+    return 24;
   };
 
   const isVideoMode = (): boolean => {

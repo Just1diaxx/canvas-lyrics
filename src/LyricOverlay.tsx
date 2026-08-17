@@ -131,9 +131,14 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
     }
   }
 
+  // Calculate dynamic height based on content while maintaining minimum constraints
   const maxLyricLines = 3;
   const lyricLineHeight = "1.3";
-  const lyricBlockHeight = `calc(${lyricLineHeight}em * ${maxLyricLines})`;
+
+  // Use min() to ensure at least enough space for 3 lines, but allow expansion
+  const getLyricBlockHeight = () => {
+    return `min(${lyricLineHeight}em * ${maxLyricLines}, auto)`;
+  };
 
   const renderContent = (text: string, isPrev: boolean) => {
     if (text === waiting) {
@@ -206,8 +211,7 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
               fontSize: mode === "canvas" ? "18px" : "16px",
               fontWeight: "700",
               lineHeight: lyricLineHeight,
-              minHeight: lyricBlockHeight,
-              maxHeight: lyricBlockHeight,
+              minHeight: getLyricBlockHeight(),
               wordWrap: "break-word",
               letterSpacing: "-0.01em",
               overflow: "hidden",
@@ -225,8 +229,7 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
             fontSize: mode === "canvas" ? "18px" : "16px",
             fontWeight: "700",
             lineHeight: lyricLineHeight,
-            minHeight: lyricBlockHeight,
-            maxHeight: lyricBlockHeight,
+            minHeight: getLyricBlockHeight(),
             wordWrap: "break-word",
             letterSpacing: "-0.01em",
             overflow: "hidden",
@@ -241,3 +244,4 @@ export const LyricOverlay: React.FC<LyricOverlayProps> = ({
     </div>
   );
 };
+
