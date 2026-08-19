@@ -1,8 +1,9 @@
 import { defineConfig } from "@spicemod/creator";
+import { ProjectName, ProjectVersion } from "./project/config";
 
 export default defineConfig({
-    name: "canvas-lyrics",
-    version: "1.3.1",
+    name: ProjectName,
+    version: ProjectVersion,
     linter: "oxlint",
     template: "extension",
     packageManager: "bun",

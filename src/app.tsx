@@ -1,7 +1,8 @@
-import React from "react";
 import { getLyrics } from "./lyrics";
 import { LyricOverlay } from "./LyricOverlay";
 import type { LyricsData, DisplayMode } from "./utils/types";
+import { checkForUpdates } from "./utils/autoupdateManager";
+import { Toaster } from "sonner";
 
 async function main() {
   while (!Spicetify?.Player || !Spicetify?.Platform || !Spicetify?.ReactDOM) {
@@ -9,6 +10,17 @@ async function main() {
   }
 
   console.log("CanvasLyrics: Extension initialized");
+
+  // Mount Toaster container to document body if it doesn't exist
+  if (!document.getElementById("canvas-lyrics-toaster-container")) {
+    const toasterContainer = document.createElement("div");
+    toasterContainer.id = "canvas-lyrics-toaster-container";
+    document.body.appendChild(toasterContainer);
+    const toasterRoot = Spicetify.ReactDOM.createRoot(toasterContainer);
+    toasterRoot.render(<Toaster theme="dark" />);
+  }
+
+  await checkForUpdates();
 
   let currentLyricsData: LyricsData | null = null;
   let currentProgress = 0;
