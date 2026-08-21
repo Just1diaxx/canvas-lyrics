@@ -28,7 +28,7 @@ async function checkForUpdates() {
     .then(res => res.json())
     .then(res => res.tag_name);
 
-  if (ProjectVersion !== remoteVersion) presentUpdateAvailable(remoteVersion);
+  if (`v.${ProjectVersion}` !== remoteVersion) presentUpdateAvailable(remoteVersion);
 }
 
 function presentUpdateAvailable(latestVersion: any) {
