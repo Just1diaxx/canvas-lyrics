@@ -276,5 +276,3 @@ async function main() {
 
   fetchCurrentLyrics();
 }
-
-main();

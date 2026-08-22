@@ -1,2 +1,2 @@
 export const ProjectName = "canvas-lyrics";
-export const ProjectVersion = "1.4.0";
+export const ProjectVersion = "1.4.1";
