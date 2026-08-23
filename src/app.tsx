@@ -9,6 +9,14 @@ async function main() {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
+  // Cleanup any previously running instance on reload / re-injection
+  if ((window as any).__CANVAS_LYRICS_CLEANUP__) {
+    (window as any).__CANVAS_LYRICS_CLEANUP__();
+  }
+
+  // Clean up any stray containers left behind in the DOM
+  document.querySelectorAll(".canvas-lyrics-container").forEach((el) => el.remove());
+
   console.log("CanvasLyrics: Extension initialized");
 
   // Mount Toaster container to document body if it doesn't exist
@@ -31,6 +39,11 @@ async function main() {
   let activeMode: DisplayMode | null = null;
 
   const cleanupContainer = () => {
+    if (activeRoot) {
+      try {
+        activeRoot.unmount();
+      } catch (_) { }
+    }
     if (activeContainer && activeContainer.parentElement) {
       activeContainer.parentElement.removeChild(activeContainer);
     }
@@ -187,16 +200,22 @@ async function main() {
 
     if (!target || !target.parentElement) return;
 
+    const expectedParent = mode === "canvas" ? target : target.parentElement;
+
     if (activeContainer) {
       const isAttached = document.body.contains(activeContainer);
       const modeChanged = activeMode !== mode;
+      const parentChanged = activeContainer.parentElement !== expectedParent;
 
-      if (!isAttached || modeChanged) {
+      if (!isAttached || modeChanged || parentChanged) {
         cleanupContainer();
       }
     }
 
     if (!activeContainer) {
+      // Clean up any rogue containers in target/parent before creating a new one
+      expectedParent.querySelectorAll(".canvas-lyrics-container").forEach((el) => el.remove());
+
       activeContainer = document.createElement("div");
       activeContainer.className = "canvas-lyrics-container";
       activeMode = mode;
@@ -247,32 +266,48 @@ async function main() {
     renderOverlays();
   };
 
-  Spicetify.Player.addEventListener("songchange", () => {
+  const onSongChange = () => {
     cleanupContainer();
     currentLyricsData = null;
     currentProgress = 0;
     renderOverlays();
     fetchCurrentLyrics();
-  });
+  };
 
-  Spicetify.Player.addEventListener("onprogress", (e: any) => {
+  const onProgress = (e: any) => {
     currentProgress = e.data;
     if (!currentLyricsData) {
       fetchCurrentLyrics();
     }
     renderOverlays();
-  });
+  };
 
-  setInterval(() => {
+  const onResize = () => {
+    renderOverlays();
+  };
+
+  Spicetify.Player.addEventListener("songchange", onSongChange);
+  Spicetify.Player.addEventListener("onprogress", onProgress);
+  window.addEventListener("resize", onResize);
+
+  const pollInterval = setInterval(() => {
     if (!currentLyricsData) {
       fetchCurrentLyrics();
     }
     renderOverlays();
   }, 1000);
 
-  window.addEventListener("resize", () => {
-    renderOverlays();
-  });
+  // Store teardown function globally for hot-reloads / re-executions
+  (window as any).__CANVAS_LYRICS_CLEANUP__ = () => {
+    Spicetify.Player.removeEventListener("songchange", onSongChange);
+    Spicetify.Player.removeEventListener("onprogress", onProgress);
+    window.removeEventListener("resize", onResize);
+    clearInterval(pollInterval);
+    cleanupContainer();
+    document.querySelectorAll(".canvas-lyrics-container").forEach((el) => el.remove());
+  };
 
   fetchCurrentLyrics();
 }
+
+main();
